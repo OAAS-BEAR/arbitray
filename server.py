@@ -18,7 +18,7 @@ import torchvision
 from PIL import Image
 from torchvision import transforms
 styleTransformer=styleNet()
-styleTransformer.load_state_dict(torch.load('trained_model_0_50000.pth'))
+styleTransformer.load_state_dict(torch.load('trained_model_0_40000.pth'))
 # create a socket object
 serversocket = socket.socket(
             socket.AF_INET, socket.SOCK_STREAM)
