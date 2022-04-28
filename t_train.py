@@ -37,7 +37,7 @@ def main():
             # print(image_tensor.size())
             assert (image_tensor.size() == style_tensor.size())
             output_image, out_feature= transformNet(image_tensor, style_tensor, control)
-            output_image, content_loss, style_loss = transformNet.get_loss(output_image, out_feature, style_tensor)
+            output_image, content_loss, style_loss = transformNet.get_loss(output_image, image_tensor, style_tensor)
             loss = alpha * content_loss + beta * style_loss
             loss.backward()
             optimizer.step()

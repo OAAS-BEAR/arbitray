@@ -144,9 +144,10 @@ class styleNet(nn.Module):
         output_image,output_feature=self.style_transform(content,style,control)
 
         return output_image,output_feature
-    def get_loss(self,output_image,output_feature,style):
+    def get_loss(self,output_image,content,style):
         output_image_features=self.f_net(output_image)
         s_features=self.f_net(style)
-        content_loss=self.content_loss(output_image_features[3],output_feature)
+        c_features=self.f_net(content)
+        content_loss=self.content_loss(output_image_features[3],c_features[3])
         style_loss=self.style_loss(output_image_features,s_features)
         return output_image,content_loss,style_loss
