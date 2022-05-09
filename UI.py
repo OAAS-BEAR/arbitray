@@ -16,7 +16,8 @@ class Main(QWidget):
         self.CAM_NUM=0
         self.transform_flag=0
         self.initUI()
-        self.host='47.111.125.237'
+        self.filepath='style/starry_night.jpg'
+        self.host='47.114.94.239'
         self.port=3389
         self.buf_size=3000000
         self.s=0
@@ -40,11 +41,18 @@ class Main(QWidget):
         self.show_camera.setAutoFillBackground(False)
 
         self.setGeometry(300,300,1000,800)
-        self.setWindowTitle('menu test')
+        stylesheet = (
+            "background-color:black"
+        )
+        self.setStyleSheet(stylesheet)
+        self.setWindowTitle('实时视频风格迁移系统')
         self.show()
     def choose_style(self):
-        self.close()
-
+        self.filepath=QFileDialog.getOpenFileName(self,"XUANQU ",'style/')[0]
+        print(self.filepath)
+        if(self.transform_flag==1):
+            self.open_transform()
+            self.open_transform()
     def shut_app(self):
         self.close()
     def open_camera(self):
@@ -60,11 +68,20 @@ class Main(QWidget):
 
     def open_transform(self):
         if(self.transform_flag==0):
-            self.transform_flag=1
+            self.timer.stop()
             self.s=connect(self.host,self.port)
+            print(self.filepath)
+            style_image=cv2.imread(self.filepath)
+
+            print(style_image)
+            style_image = cv2.resize(style_image, (256, 256))
+            print(len(style_image.tobytes()))
+            self.s.send(style_image.tobytes())
             self.btn3.setText('关闭风格化')
+            self.transform_flag = 1
+            self.timer.start(200)
         else:
-            self.transform_flag=0
+            self.transform_flag = 0
             self.s.close()
             self.btn3.setText('开启风格化')
 
@@ -72,7 +89,7 @@ class Main(QWidget):
         ret,image=self.camera.read()
 
         if(self.transform_flag==0):
-            print(len(image.tobytes()))
+            #print(len(image.tobytes()))
             image = cv2.resize(image, (640, 480))
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             QT_image=QImage(image.data.tobytes(),image.shape[1],image.shape[0],QImage.Format.Format_RGB888)
