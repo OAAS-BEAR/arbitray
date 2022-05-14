@@ -1,11 +1,11 @@
 import torch.utils.data
 import torch.nn.functional as f
-from model import *
+from t_model import *
 from data import *
 from iter import *
 learning_rate = 1e-4
 epochs = 1
-transformNet = styleNet().to(device);
+transformNet = styleSNet().to(device);
 optimizer = torch.optim.Adam(transformNet.parameters(), lr=learning_rate)
 alpha = 1
 beta = 5
@@ -43,7 +43,7 @@ def main():
                     epoch, idx,
                     loss, alpha * content_loss, beta * style_loss))
             if (idx + 1) % 5000 == 0:
-                torch.save(transformNet.state_dict(), 'trained_model_%d_%d.pth' % (epoch, idx + 1))
+                torch.save(transformNet.state_dict(), 'trained_s_model_%d_%d.pth' % (epoch, idx + 1))
             idx+=1
 
 if __name__ == '__main__':

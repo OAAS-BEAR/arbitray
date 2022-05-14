@@ -6,6 +6,7 @@ from iter import *
 
 learning_rate = 1e-4
 epochs = 1
+device = "cuda" if torch.cuda.is_available() else "cpu"
 transformNet = VggEncoder.to(device)
 transformSNet=VggSEncoder.to(device)
 optimizer = torch.optim.Adam(transformSNet.parameters(), lr=learning_rate)
@@ -14,8 +15,6 @@ beta = 8
 omegon = 1e-6
 BS = 4
 control = 1.0
-device = "cuda" if torch.cuda.is_available() else "cpu"
-print(f"Using {device} device")
 
 
 def main():
@@ -62,7 +61,7 @@ def main():
                     epoch, idx,
                     loss, alpha * content_loss, beta * style_loss))
             if (idx + 1) % 5000 == 0:
-                torch.save(transformNet.state_dict(), 'trained_model_%d_%d.pth' % (epoch, idx + 1))
+                torch.save(transformSNet.state_dict(), 'trained_model_%d_%d.pth' % (epoch, idx + 1))
             idx += 1
 
 
