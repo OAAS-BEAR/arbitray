@@ -17,8 +17,8 @@ class Main(QWidget):
         self.transform_flag=0
         self.initUI()
         self.filepath='style/starry_night.jpg'
-        self.host='47.114.94.239'
-        self.port=3389
+        self.host='47.114.99.32'
+        self.port=9999
         self.buf_size=3000000
         self.s=0
         self.timer.timeout.connect(self.show_frame)
@@ -44,7 +44,7 @@ class Main(QWidget):
         stylesheet = (
             "background-color:black"
         )
-        self.setStyleSheet(stylesheet)
+        #self.setStyleSheet(stylesheet)
         self.setWindowTitle('实时视频风格迁移系统')
         self.show()
     def choose_style(self):
