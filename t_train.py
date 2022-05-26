@@ -30,12 +30,9 @@ def main():
     for epoch in range(epochs):
         idx = 0
         while (idx < 40000):
-
             image_tensor = next(data_iter)
-
             optimizer.zero_grad()
             # print(image_tensor.size())
-
             out_feature= transformNet(image_tensor)
             out_feature_s = transformSNet.forward_c(image_tensor)
             content_loss=nn.MSELoss()(out_feature[-1],out_feature_s[-1])
@@ -63,7 +60,5 @@ def main():
             if (idx + 1) % 5000 == 0:
                 torch.save(transformSNet.state_dict(), 'trained_model_%d_%d.pth' % (epoch, idx + 1))
             idx += 1
-
-
 if __name__ == '__main__':
     main()

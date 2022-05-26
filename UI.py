@@ -1,5 +1,4 @@
 import sys
-
 import numpy as np
 from PyQt6.QtWidgets import *
 from PyQt6.QtCore import *
@@ -7,7 +6,6 @@ from PyQt6.QtGui import QIcon, QAction,QPixmap,QImage
 import os
 import cv2
 from connect import *
-
 class Main(QWidget):
     def __init__(self):
         super().__init__()
@@ -22,7 +20,6 @@ class Main(QWidget):
         self.buf_size=3000000
         self.s=0
         self.timer.timeout.connect(self.show_frame)
-
     def initUI(self):
         self.btn1=QPushButton("选择风格图片",self)
         self.btn2=QPushButton("开启摄像头",self)
@@ -39,7 +36,6 @@ class Main(QWidget):
         self.show_camera=QLabel(self)
         self.show_camera.setFixedSize(641,481)
         self.show_camera.setAutoFillBackground(False)
-
         self.setGeometry(300,300,1000,800)
         stylesheet = (
             "background-color:black"
@@ -65,7 +61,6 @@ class Main(QWidget):
             self.camera.release()
             self.show_camera.clear()
             self.btn2.setText('开启摄像头')
-
     def open_transform(self):
         if(self.transform_flag==0):
             self.timer.stop()
@@ -84,10 +79,8 @@ class Main(QWidget):
             self.transform_flag = 0
             self.s.close()
             self.btn3.setText('开启风格化')
-
     def show_frame(self):
         ret,image=self.camera.read()
-
         if(self.transform_flag==0):
             #print(len(image.tobytes()))
             image = cv2.resize(image, (640, 480))
@@ -108,10 +101,7 @@ class Main(QWidget):
             image = cv2.resize(t_image, (640, 480))
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             QT_image=QImage(image.data.tobytes(),image.shape[1],image.shape[0],QImage.Format.Format_RGB888)
-
-
         self.show_camera.setPixmap(QPixmap.fromImage(QT_image))
-
 def main():
     app=QApplication(sys.argv)
     example=Main()

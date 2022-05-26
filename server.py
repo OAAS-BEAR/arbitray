@@ -33,9 +33,6 @@ buf_size=3000000
 
 # bind to the port
 serversocket.bind((host, port))
-
-
-
 control=0.7
 content_tf = test_transform((512, 512), 256)
 style_tf = test_transform((512, 512), 256)
@@ -44,18 +41,14 @@ while True:
     clientsocket, addr = serversocket.accept()
     print("Got a connection from %s" % str(addr))
     image = bytes()
-
     while(len(image)!=196608):
         rec_image=clientsocket.recv(buf_size)
         image += rec_image
-
     style_img = np.frombuffer(image, dtype=np.uint8).reshape([256, 256, 3])
     image=bytes()
     while True:
         rec_image = clientsocket.recv(buf_size)
         image += rec_image
-
-
         if rec_image:
             rec_image = clientsocket.recv(buf_size)
             image+=rec_image

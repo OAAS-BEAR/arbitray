@@ -27,7 +27,6 @@ def main():
     for epoch in range(epochs):
         idx=0
         while(idx<40000):
-            
             image_tensor=next(data_iter)
             style_tensor=next(style_iter)
             optimizer.zero_grad()
@@ -45,6 +44,5 @@ def main():
             if (idx + 1) % 5000 == 0:
                 torch.save(transformNet.state_dict(), 'trained_s_model_%d_%d.pth' % (epoch, idx + 1))
             idx+=1
-
 if __name__ == '__main__':
     main()

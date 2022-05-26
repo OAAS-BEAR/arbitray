@@ -1,9 +1,6 @@
 import numpy as np
 from torch.utils import data
-
-
 def nSampler(n):
-    # i = 0
     i = n - 1
     order = np.random.permutation(n)
     while True:
@@ -13,14 +10,10 @@ def nSampler(n):
             np.random.seed()
             order = np.random.permutation(n)
             i = 0
-
-
 class NewSampler(data.sampler.Sampler):
     def __init__(self, data_source):
         self.num_samples = len(data_source)
-
     def __iter__(self):
         return iter(nSampler(self.num_samples))
-
     def __len__(self):
         return 2 ** 31

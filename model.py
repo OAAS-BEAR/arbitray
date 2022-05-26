@@ -81,8 +81,6 @@ class VggEncoder(nn.Module):
         style3 = self.style3(style2)
         style4 = self.style4(style3)
         return style1,style2,style3,style4
-
-
 decoder=nn.Sequential(
     nn.Conv2d(512, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1)),
     nn.ReLU(),
@@ -106,8 +104,6 @@ decoder=nn.Sequential(
     nn.Conv2d(64, 3, kernel_size=(3, 3),stride=(1,1),padding=(1,1)),
 
 )
-
-
 class styleNet(nn.Module):
     def __init__(self):
         super(styleNet,self).__init__()

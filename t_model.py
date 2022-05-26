@@ -2,7 +2,6 @@ import torch.nn as nn
 import torch
 from torchvision import models
 import torch.nn.functional as f
-
 vgg = nn.Sequential(
     nn.Conv2d(3, 3, (1, 1)),
     nn.ReflectionPad2d((1, 1, 1, 1)),
@@ -58,7 +57,7 @@ vgg = nn.Sequential(
     nn.Conv2d(512, 512, (3, 3)),
     nn.ReLU()  # relu5-4
 )
-vgg.load_state_dict(torch.load('pretrained/vgg.pth'))
+vgg.load_state_dict(torch.load('pretrained/vgg.pth',map_location='cpu'))
 
 vggsmall = nn.Sequential(
     nn.Conv2d(3, 3, (1, 1)),
@@ -115,8 +114,6 @@ vggsmall = nn.Sequential(
     nn.Conv2d(512, 512, (3, 3)),
     nn.ReLU()  # relu5-4
 )
-
-
 class VggEncoder(nn.Module):
     def __init__(self):
         super(VggEncoder, self).__init__()
@@ -141,8 +138,6 @@ class VggEncoder(nn.Module):
         style3 = self.style3(style2)
         style4 = self.style4(style3)
         return style1, style2, style3, style4
-
-
 class VggSEncoder(nn.Module):
     def __init__(self):
         super(VggSEncoder, self).__init__()
@@ -158,29 +153,24 @@ class VggSEncoder(nn.Module):
             self.style3.add_module("style3_" + str(i), vggsmall[i])
         for i in range(18, 31):
             self.style4.add_module("style4_" + str(i), vggsmall[i])
-
         self.c1 = nn.Conv2d(32, 64, (1, 1))
         self.c2 = nn.Conv2d(64, 128, (1, 1))
         self.c3 = nn.Conv2d(128, 256, (1, 1))
         self.c4 = nn.Conv2d(256, 512, (1, 1))
         self.relu = nn.ReLU()
-
+    def forward_d(self, x):
+        style1 = self.style1(x)
+        style2 = self.style2(style1)
+        style3 = self.style3(style2)
+        style4 = self.style4(style3)
+        return style1, style2, style3, style4
     def forward(self, x):
         style1 = self.style1(x)
         style2 = self.style2(style1)
         style3 = self.style3(style2)
         style4 = self.style4(style3)
-        return style1, style2, style3, style4
-
-    def forward_d(self, x):
-        style1 = self.style1(x)
-
-        style2 = self.style2(style1)
-        style3 = self.style3(style2)
-        style4 = self.style4(style3)
         style4 = self.relu(self.c4(style4))
         return style1, style2, style3, style4
-
     def forward_c(self, x):
         style1 = self.style1(x)
 
@@ -192,8 +182,6 @@ class VggSEncoder(nn.Module):
         style3 = self.relu(self.c3(style3))
         style4 = self.relu(self.c4(style4))
         return style1, style2, style3, style4
-
-
 decoder = nn.Sequential(
     nn.Conv2d(512, 256, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1)),
     nn.ReLU(),
@@ -215,9 +203,7 @@ decoder = nn.Sequential(
     nn.Conv2d(64, 64, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1)),
     nn.ReLU(),
     nn.Conv2d(64, 3, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1)),
-
 )
-
 decodersmall = nn.Sequential(
     nn.Conv2d(512, 128, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1)),
     nn.ReLU(),
@@ -239,20 +225,16 @@ decodersmall = nn.Sequential(
     nn.Conv2d(32, 32, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1)),
     nn.ReLU(),
     nn.Conv2d(32, 3, kernel_size=(3, 3), stride=(1, 1), padding=(1, 1)),
-
 )
-
-
 class styleSNet(nn.Module):
     def __init__(self):
         super(styleSNet, self).__init__()
         self.encoder = VggSEncoder()
-        self.encoder.load_state_dict(torch.load('trained_model_2_40000.pth'))
+        self.encoder.load_state_dict(torch.load('trained_model_2_40000.pth',map_location='cpu'))
         for parameter in self.encoder.parameters():
             parameter.requires_grad = False;
         self.decoder = decodersmall
         self.f_net = VggEncoder()
-
     def adaIN(self, content, style):
         c_size = content.size()
         s_size = style.size()
@@ -264,21 +246,17 @@ class styleSNet(nn.Module):
             c_size)
         style_mean = style.view(s_size[0], s_size[1], -1).mean(dim=2).view(s_size[0], s_size[1], 1, 1).expand(s_size)
         return (content - content_mean) / content_std * style_std + style_mean
-
     def style_transform(self, content, style, control):
         c_features = self.encoder.forward_d(content)
         s_features = self.encoder.forward_d(style)
-
         c_feature = c_features[3]
         s_feature = s_features[3]
         output_feature = self.adaIN(c_feature, s_feature)
         output_feature = output_feature * control + (1 - control) * c_feature
         output_image = self.decoder(output_feature)
         return output_image, output_feature, s_features
-
     def content_loss(self, output_image, content_target):
         return f.mse_loss(output_image, content_target)
-
     def style_loss(self, output_image, style_target):
         loss = 0
         for i in range(len(output_image)):
@@ -287,27 +265,22 @@ class styleSNet(nn.Module):
             c_size = out_feature.size()
             s_size = target_feature.size()
             out_std = (out_feature.view(c_size[0], c_size[1], -1).var(dim=2) + 1e-6).sqrt().view(c_size[0], c_size[1],
-                                                                                                 1, 1)
+                                                                                                1, 1)
             out_mean = out_feature.view(c_size[0], c_size[1], -1).mean(dim=2).view(c_size[0], c_size[1], 1, 1)
             target_std = (target_feature.view(s_size[0], s_size[1], -1).var(dim=2) + 1e-6).sqrt().view(s_size[0],
                                                                                                        s_size[1], 1, 1)
             target_mean = target_feature.view(s_size[0], s_size[1], -1).mean(dim=2).view(s_size[0], s_size[1], 1, 1)
             loss += f.mse_loss(out_std, target_std) + f.mse_loss(out_mean, target_mean)
         return loss
-
     def forward(self, content, style, control):
         output_image, output_feature, s_features = self.style_transform(content, style, control)
-
         return output_image, output_feature, s_features
-
     def get_loss(self, output_image, output_feature, style):
         output_image_features = self.encoder.forward_c(output_image)
         s_features = self.encoder.forward_c(style)
         content_loss = self.content_loss(output_image_features[3], output_feature)
         style_loss = self.style_loss(output_image_features, s_features)
         return output_image, content_loss, style_loss
-
-
 class styleNet(nn.Module):
     def __init__(self):
         super(styleNet, self).__init__()
@@ -315,7 +288,6 @@ class styleNet(nn.Module):
         for parameter in self.encoder.parameters():
             parameter.requires_grad = False;
         self.decoder = decoder
-
     def adaIN(self, content, style):
         c_size = content.size()
         s_size = style.size()
@@ -327,7 +299,6 @@ class styleNet(nn.Module):
             c_size)
         style_mean = style.view(s_size[0], s_size[1], -1).mean(dim=2).view(s_size[0], s_size[1], 1, 1).expand(s_size)
         return (content - content_mean) / content_std * style_std + style_mean
-
     def style_transform(self, content, style, control):
         c_features = self.encoder(content)
         s_features = self.encoder(style)
@@ -337,10 +308,8 @@ class styleNet(nn.Module):
         output_feature = output_feature * control + (1 - control) * c_feature
         output_image = self.decoder(output_feature)
         return output_image, output_feature, s_features
-
     def content_loss(self, output_image, content_target):
         return f.mse_loss(output_image, content_target)
-
     def style_loss(self, output_image, style_target):
         loss = 0
         for i in range(len(output_image)):
@@ -359,14 +328,13 @@ class styleNet(nn.Module):
 
     def forward(self, content, style, control):
         output_image, output_feature, s_features = self.style_transform(content, style, control)
-
         return output_image, output_feature, s_features
-
     def get_loss(self, output_image, output_feature, s_features):
         output_image_features = self.encoder(output_image)
         content_loss = self.content_loss(output_image_features[3], output_feature)
         style_loss = self.style_loss(output_image_features, s_features)
         return output_image, content_loss, style_loss
+
 
 
 
