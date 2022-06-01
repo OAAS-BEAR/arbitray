@@ -51,7 +51,7 @@ while(True):
     output = output.squeeze(0)
     
     output = np.array(output*255)
-    print(output.shape)
+
     
     output = np.transpose(output, (1,2,0))
     output = cv2.resize(output, (output_width, output_height), interpolation=cv2.INTER_CUBIC)

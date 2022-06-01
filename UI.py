@@ -15,8 +15,8 @@ class Main(QWidget):
         self.transform_flag=0
         self.initUI()
         self.filepath='style/starry_night.jpg'
-        self.host='47.114.99.32'
-        self.port=9999
+        self.host='47.111.12.128'
+        self.port=3389
         self.buf_size=3000000
         self.s=0
         self.timer.timeout.connect(self.show_frame)
@@ -29,12 +29,12 @@ class Main(QWidget):
         self.btn2.clicked.connect(self.open_camera)
         self.btn3.clicked.connect(self.open_transform)
         self.btn4.clicked.connect(self.shut_app)
-        self.btn1.move(30, 600)
-        self.btn2.move(200, 600)
-        self.btn3.move(450, 600)
-        self.btn4.move(700, 600)
+        self.btn1.move(800, 50)
+        self.btn2.move(800, 150)
+        self.btn3.move(800, 250)
+        self.btn4.move(800, 350)
         self.show_camera=QLabel(self)
-        self.show_camera.setFixedSize(641,481)
+        self.show_camera.setFixedSize(750,550)
         self.show_camera.setAutoFillBackground(False)
         self.setGeometry(300,300,1000,800)
         stylesheet = (
@@ -83,7 +83,7 @@ class Main(QWidget):
         ret,image=self.camera.read()
         if(self.transform_flag==0):
             #print(len(image.tobytes()))
-            image = cv2.resize(image, (640, 480))
+            image = cv2.resize(image, (749, 549))
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             QT_image=QImage(image.data.tobytes(),image.shape[1],image.shape[0],QImage.Format.Format_RGB888)
         else:
@@ -98,7 +98,7 @@ class Main(QWidget):
                         break
             t_image=np.frombuffer(t_image,dtype=np.uint8).reshape([256,256,3])
 
-            image = cv2.resize(t_image, (640, 480))
+            image = cv2.resize(t_image, (900, 680))
             image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             QT_image=QImage(image.data.tobytes(),image.shape[1],image.shape[0],QImage.Format.Format_RGB888)
         self.show_camera.setPixmap(QPixmap.fromImage(QT_image))
